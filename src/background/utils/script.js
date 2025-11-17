@@ -2,7 +2,7 @@ import {
   encodeFilename, getFullUrl, getScriptHome, getScriptSupportUrl, i18n, noop,
 } from '@/common';
 import {
-  __CODE, HOMEPAGE_URL, INFERRED, METABLOCK_RE, SUPPORT_URL, TL_AWAIT, UNWRAP,
+  __CODE, HOMEPAGE_URL, INFERRED, METABLOCK_RE, SUPPORT_URL, FAVICON_URL, TL_AWAIT, UNWRAP,
 } from '@/common/consts';
 import { formatDate } from '@/common/date';
 import { mapEntry } from '@/common/object';
@@ -16,9 +16,11 @@ addOwnCommands({
     const tabUrl = (tabId >= 0 && await browser.tabs.get(tabId).catch(noop) || {}).url;
     const url = injectableRe.test(tabUrl) && `${tabUrl.split(/[#?]/)[0]}*`;
     const { host = 'example.org', domain } = url ? commands.GetTabDomain(url) : {};
+    const icon = domain ? `${FAVICON_URL}${domain}` : '';
     return newScript({
       url: url || `*://${host}/*`,
       name: domain || '',
+      icon: icon,
     });
   },
 });

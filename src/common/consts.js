@@ -5,6 +5,7 @@ export const FORM_URLENCODED = 'application/x-www-form-urlencoded';
 export const INFERRED = 'inferred';
 export const HOMEPAGE_URL = 'homepageURL';
 export const SUPPORT_URL = 'supportURL';
+export const FAVICON_URL = 'https://www.google.com/s2/favicons?sz=64&domain=';
 
 /** A relaxed check, see METABLOCK_RE description */
 export const USERSCRIPT_META_INTRO = '==UserScript==';
