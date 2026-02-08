@@ -18,6 +18,10 @@ configLoader
   // Default values
   .add({
     DEBUG: false,
+    SYNC_GOOGLE_DESKTOP_ID: '590447512361-fa9j9vrskafqi75q2p2o2mkirdo9lavo.apps.googleusercontent.com',
+    SYNC_GOOGLE_DESKTOP_SECRET: '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',
+    SYNC_ONEDRIVE_CLIENT_ID: '59c6059c-8231-49ec-809b-a307e384f6b6',
+    SYNC_DROPBOX_CLIENT_ID: 'f0q12zup2uys5w8',
   })
   // Load from `./.env`
   .envFile()
