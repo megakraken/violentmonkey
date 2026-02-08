@@ -4,6 +4,10 @@
       <span v-text="name"></span>
       <small v-text="`v${version}`"></small>
     </h1>
+    <p v-if="commit">
+        <a :href="GITHUB" v-bind="EXTERNAL_LINK_PROPS">megakraken fork</a>, built from commit
+        <a :href="`${GITHUB}commit/${commit}`" v-bind="EXTERNAL_LINK_PROPS" v-text="`#${commit}`" />
+    </p>
     <p v-text="i18n('extDescription')"></p>
     <div>
       <label v-text="i18n('labelRelated')"></label>
@@ -28,8 +32,9 @@ import { EXTERNAL_LINK_PROPS } from '@/common/ui';
 
 const name = extensionManifest.name;
 const version = process.env.VM_VER;
+const commit = process.env.GIT_DESCRIBE;
 const language = browser.i18n.getUILanguage();
-const GITHUB = 'https://github.com/violentmonkey/violentmonkey/';
+const GITHUB = 'https://github.com/megakraken/violentmonkey/';
 const LINKS = {
   [VM_HOME]: i18n('labelHomepage'),
   [GITHUB + 'issues']: i18n('labelFeedback'),
