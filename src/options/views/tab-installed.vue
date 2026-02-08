@@ -56,8 +56,9 @@
         <span class="ml-1">{{ i18n('sortOrder') }}
           <select :value="filters.sort" @change="handleOrderChange" class="h-100">
             <option
-              v-for="(option, name) in filterOptions.sort"
-              v-text="option.title"
+              v-for="({text, title}, name) in sortModes"
+              v-text="text"
+              :title
               :key="name"
               :value="name">
             </option>
@@ -76,6 +77,9 @@
             </div>
             <div>
               <SettingCheck name="filters.showOrder" :label="i18n('labelShowOrder')" />
+            </div>
+            <div>
+              <SettingCheck name="filters.showVisit" :label="i18n('labelShowVisited')" />
             </div>
             <div class="mr-2c">
               <SettingCheck name="filters.viewTable" :label="i18n('labelViewTable')" />
@@ -129,6 +133,7 @@
           :key="script.props.id"
           :focused="selectedScript === script"
           :showHotkeys="state.showHotkeys"
+          :showVisit="filters.showVisit || filters.sort.startsWith('visit')"
           :script
           :draggable
           :visible="index < state.batchRender.limit"
@@ -161,7 +166,9 @@
 
 <script setup>
 import { computed, reactive, nextTick, onMounted, watch, ref, onBeforeUnmount } from 'vue';
-import { i18n, sendCmdDirectly, debounce, ensureArray, makePause, trueJoin } from '@/common';
+import { i18n, sendCmdDirectly, debounce, ensureArray, trueJoin } from '@/common';
+import { INFERRED } from '@/common/consts';
+import handlers from '@/common/handlers';
 import options from '@/common/options';
 import { EXTERNAL_LINK_PROPS, getActiveElement, isTouch, showConfirmation, showMessage, vFocus } from '@/common/ui';
 import hookSetting from '@/common/hook-setting';
@@ -198,38 +205,36 @@ const RESTORE = 'restore';
 const TOGGLE = 'toggle';
 const UNDO = 'undo';
 const UPDATE = 'update';
-const filterOptions = {
-  sort: {
-    exec: {
-      title: i18n('filterExecutionOrder'),
-    },
-    alpha: {
-      title: i18n('filterAlphabeticalOrder'),
-      compare: (
-        { $cache: { lowerName: a } },
-        { $cache: { lowerName: b } },
-      ) => (a < b ? -1 : a > b),
-    },
-    [UPDATE]: {
-      title: i18n('filterLastUpdateOrder'),
-      compare: (
-        { props: { lastUpdated: a } },
-        { props: { lastUpdated: b } },
-      ) => (+b || 0) - (+a || 0),
-    },
-    size: {
-      title: i18n('filterSize'),
-      compare: (a, b) => b.$cache.sizeNum - a.$cache.sizeNum,
-    },
-  },
-};
+/** @type {{ [key:string]: SortMode }} */
+const sortModes = [
+  ['exec', i18n('filterExecutionOrder')],
+  ['alpha', i18n('filterAlphabeticalOrder'), '',
+    ({ $cache: { lowerName: a } }, { $cache: { lowerName: b } }) => (a < b ? -1 : a > b)],
+  [UPDATE, i18n('filterLastUpdateOrder'), '',
+    (a, b) => (+b.props.lastUpdated || 0) - (+a.props.lastUpdated || 0)],
+  ['visit', i18n('filterLastVisitOrder'), i18n('filterLastVisitOrderTooltip'),
+    (a, b) => (b[INFERRED].visit || 0) - (a[INFERRED].visit || 0)],
+  ['size', i18n('filterSize'), '',
+    (a, b) => a.$cache.sizeNum - b.$cache.sizeNum],
+].reduce((res, [key, text, title, compare]) => (
+  (res[key] = {text, title, compare}),
+  (res[key + '-'] = /**@namespace SortMode*/{
+    text: text + ' ⯆',
+    title: title,
+    compare: compare ? (a, b) => compare(b, a) :
+      /** @param {VMScript} a
+       * @param {VMScript} b */
+      (a, b) => b.props.position - a.props.position,
+  }),
+  res
+), {});
 const filters = reactive({
-  searchScope: null,
-  showEnabledFirst: null,
-  showOrder: null,
-  viewSingleColumn: null,
-  viewTable: null,
-  sort: null,
+  /** @type {Boolean} */ showEnabledFirst: null,
+  /** @type {Boolean} */ showOrder: null,
+  /** @type {Boolean} */ showVisit: null,
+  /** @type {Boolean} */ viewSingleColumn: null,
+  /** @type {Boolean} */ viewTable: null,
+  sort: '',
 });
 const combinedCompare = cmpFunc => (
   filters.showEnabledFirst
@@ -238,8 +243,9 @@ const combinedCompare = cmpFunc => (
 );
 filters::forEachKey(key => {
   hookSetting(`filters.${key}`, (val) => {
-    filters[key] = val;
-    if (key === 'sort' && !filterOptions.sort[val]) filters[key] = Object.keys(filterOptions.sort)[0];
+    filters[key] = key === 'sort' && !sortModes[val]
+      ? Object.keys(sortModes)[0]
+      : val;
   });
 });
 
@@ -262,12 +268,14 @@ const registerHotkey = (callback, items) => items.map(([key, condition, caseSens
 ));
 
 const MAX_BATCH_DURATION = 100;
+const RENDER_ALL = 1e9;
 let step = 0;
 
 let columnsForTableMode = [];
 let columnsForCardsMode = [];
 /** @type {CSSMediaRule} */
 let narrowMediaRules;
+let scrollTop1, scrollTop2;
 
 const $menuNew = ref();
 const isEmpty = ref();
@@ -300,9 +308,9 @@ const state = reactive({
 });
 
 const showRecycle = computed(() => store.route.paths[0] === TAB_RECYCLE);
-const draggableRaw = computed(() => !showRecycle.value && filters.sort === 'exec');
+const draggableRaw = computed(() => !showRecycle.value && filters.sort.startsWith('exec'));
 const draggable = computed(() => isTouch && draggableRaw.value);
-const currentSortCompare = computed(() => filterOptions.sort[filters.sort]?.compare);
+const currentSortCompare = computed(() => sortModes[filters.sort]?.compare);
 const selectedScript = computed(() => state.filteredScripts[state.focusedIndex]);
 const message = computed(() => {
   if (!store.loaded) {
@@ -360,7 +368,6 @@ const batchActions = computed(() => {
 });
 
 const debouncedSearch = debounce(scheduleSearch, 100);
-const debouncedRender = debounce(renderScripts);
 
 function resetList() {
   if (!showRecycle.value && store.needRefresh) {
@@ -377,17 +384,19 @@ async function refreshUI() {
   onUpdate();
   onHashChange();
 }
-function onUpdate() {
-  const scripts = [...getCurrentList()];
-  const rules = state.search.rules;
-  const numFound = rules.length ? performSearch(scripts, rules) : scripts.length;
+function sortScripts(scripts) {
   const cmp = currentSortCompare.value;
   if (cmp) scripts.sort(combinedCompare(cmp));
   state.sortedScripts = scripts;
+}
+function onUpdate() {
+  const scripts = [...getCurrentList()];
+  const rules = state.search.rules;
+  if (rules.length) performSearch(scripts, rules);
+  sortScripts(scripts);
   state.filteredScripts = rules.length ? scripts.filter(({ $cache }) => $cache.show) : scripts;
   selectScript(state.focusedIndex);
-  if (!step || numFound < step) renderScripts();
-  else debouncedRender();
+  renderScripts();
 }
 async function handleInstallFromURL() {
   try {
@@ -436,6 +445,12 @@ async function onHashChange() {
   const [tab, id, cacheId] = store.route.paths;
   const newData = id === '_new' && await sendCmdDirectly('NewScript', +cacheId);
   const script = newData ? newData.script : +id && getCurrentList().find(s => s.props.id === +id);
+  const scrollElem1 = scroller.value;
+  const scrollElem2 = document.scrollingElement; // for compact layout
+  if (script && !state.script) { // going into editor
+    scrollTop1 = scrollElem1[kScrollTop];
+    scrollTop2 = scrollElem2[kScrollTop];
+  }
   if (script) {
     state.code = newData ? newData.code : await sendCmdDirectly('GetScriptCode', id);
     state.script = script;
@@ -450,21 +465,20 @@ async function onHashChange() {
     loadData();
   }
   renderScripts();
-  state.script = null;
-  // Workaround for bug in Chrome, not suppressible via overflow-anchor:none
-  if (!IS_FIREFOX) {
-    const el = scroller.value;
-    const el2 = document.scrollingElement; // for compact layout
-    const pos = el[kScrollTop];
-    const pos2 = el2[kScrollTop];
-    nextTick(() => {
-      el[kScrollTop] = pos;
-      el2[kScrollTop] = pos2;
+  if (state.script) {
+    state.script = null;
+    nextTick(() => { // scroll position has to be restored explicitly in Chrome and Firefox Android
+      scrollElem1[kScrollTop] = scrollTop1;
+      scrollElem2[kScrollTop] = scrollTop2;
     });
   }
 }
 async function renderScripts() {
-  if (!store.canRenderScripts) return;
+  if (!store.canRenderScripts
+  || state.batchRender.limit === RENDER_ALL
+  /* Skip rendering as the editor is being closed right now and we only have 1 script,
+     we'll render in the next call after all scripts data is requested. */
+  || store.title) return;
   const { length } = state.sortedScripts;
   let limit = 9;
   const batchRender = reactive({ limit });
@@ -481,12 +495,14 @@ async function renderScripts() {
       limit += step || 1;
     }
     batchRender.limit = limit;
-    await new Promise(resolve => nextTick(resolve));
-    if (!step && performance.now() - startTime >= MAX_BATCH_DURATION) {
+    // Let the browser calculate the layout so we know the real duration of the batch
+    const now = await new Promise(requestAnimationFrame);
+    if (!step && now - startTime >= MAX_BATCH_DURATION) {
       step = limit * 2; // the first batch is slow to render because it has more work to do
     }
-    if (step && limit < length) await makePause();
   }
+  // Completed the potentially slow initial creation, subsequent redraws will be fast
+  if (length && limit >= length) batchRender.limit = RENDER_ALL;
 }
 function scheduleSearch() {
   try {
@@ -748,7 +764,7 @@ watch(showRecycle, resetList);
 watch(() => store.canRenderScripts && refList.value && draggableRaw.value,
   dr => toggleDragging(refList.value, moveScript, dr));
 watch(() => state.search.value, debouncedSearch);
-watch(() => [filters.sort, filters.showEnabledFirst], debouncedSearch);
+watch(() => [filters.sort, filters.showEnabledFirst], scheduleSearch);
 if (screen.availWidth > 767) {
   watch(() => filters.viewSingleColumn, adjustScriptWidth);
   watch(() => filters.viewTable, adjustNarrowWidth);
@@ -769,6 +785,21 @@ watch(() => state.showHotkeys, value => {
 });
 
 const disposables = [];
+
+Object.assign(handlers, {
+  Visited(data) {
+    let dirty;
+    for (const list of [store.scripts, store.removedScripts]) {
+      for (const /** @type {VMScript} */ scr of list) {
+        const val = data[scr.props.id];
+        if (val) dirty = scr[INFERRED].visit = val;
+      }
+    }
+    if (dirty && filters.sort.startsWith('visit')) {
+      sortScripts([...getCurrentList()]);
+    }
+  },
+});
 
 onMounted(() => {
   // Ensure the correct UI is shown when mounted:

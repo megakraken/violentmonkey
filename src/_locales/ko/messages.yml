@@ -100,6 +100,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: 지원 페이지
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: ''
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: ''
 buttonUndo:
   description: Button to undo removement of a script.
   message: 실행 취소
@@ -166,8 +172,8 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    지원하는 변수: MomentJS와 호환되는 <{{name}}>, <{{url}}>, <{{date}}>, <{{date:format}}>
-    형식. 예: <{{date:YYYY-MM-DD}}>.
+    지원하는 변수: MomentJS와 호환되는 <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}>,
+    <{{date:format}}> 형식. 예: <{{date:YYYY-MM-DD}}>.
 disabledScriptsGroup:
   description: 'Used as "Disabled scripts: group"'
   message: ''
@@ -255,6 +261,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: 최근 업데이트 순
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: ''
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: ''
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: 전체
@@ -294,6 +308,14 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: 일치하는 스크립트 $1개
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: ''
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: ''
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'URL 입력:'
@@ -536,6 +558,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: 실행 순서 표시
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: ''
 labelSync:
   description: Label for sync options.
   message: 동기화
@@ -548,6 +573,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: 인증 중
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: ''
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: 없음
@@ -801,6 +829,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: 동기화가 곧 시작합니다....
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: 동기화 진행 중...
@@ -1003,6 +1032,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: 모든 값 (JSON 직렬화)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: ''
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: ''
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: 웹 사이트 방문

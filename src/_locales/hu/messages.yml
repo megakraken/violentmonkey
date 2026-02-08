@@ -102,6 +102,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: Támogatói oldal
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: ''
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: ''
 buttonUndo:
   description: Button to undo removement of a script.
   message: Visszavonás
@@ -170,7 +176,7 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    Támogatott változók: <{{name}}>, <{{url}}>, <{{date}}> és
+    Támogatott változók: <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}> és
     <{{date:formátum}}>, ami a MomentJS formátumaival kompatibilis, pl.
     <{{date:YYYY-MM-DD}}>.
 disabledScriptsGroup:
@@ -269,6 +275,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: utolsó módosítás szerint
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: ''
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: ''
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: Mindenhol
@@ -307,6 +321,14 @@ helpForLocalFile:
   message: Az oldalra húzott helyi szkriptekre vonatkozó instrukciók mutatása
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
+  message: ''
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: ''
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
   message: ''
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
@@ -556,6 +578,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: Futtatási sorrend számozásának mutatása
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: ''
 labelSync:
   description: Label for sync options.
   message: Szinkronizálás
@@ -568,6 +593,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Hitelesítés
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: ''
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: Egyik sem
@@ -840,6 +868,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: A szinkronizálás hamarosan megkezdődik...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Szinkronizálás folyamatban...
@@ -1055,6 +1084,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: Összes érték (JSON-ként sorosítva)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: ''
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: ''
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: Látogasd meg a honlapot

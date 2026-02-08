@@ -100,6 +100,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: Ondersteuningspagina
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: Eenmalig lokaal ophalen
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: Eenmalig versturen naar externe bron
 buttonUndo:
   description: Button to undo removement of a script.
   message: Ongedaan maken
@@ -176,7 +182,7 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    Ondersteunde variabelen: <{{name}}>, <{{url}}>, <{{date}}>,
+    Ondersteunde variabelen: <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}>,
     <{{date:format}}> met een met MomentJS compatibel formaat, bijvoorbeeld
     <{{date:YYYY-MM-DD}}>.
 disabledScriptsGroup:
@@ -276,6 +282,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: onlangs bijgewerkt
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: recentst bezoek
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: De recentste keer dat je een site waarop het script werkt bezocht hebt.
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: Alle
@@ -317,6 +331,17 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: voor $1 overeenkomende scripts
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: '`@grant none` schakelt alle andere `@grant`-sleutels uit.'
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: |-
+    Een gesandboxed script kan deze globale eigenschappen niet wĳzigen: $1.
+    Voeg `@grant none` toe om de sandbox uit te schakelen of maak gebruik van
+    `unsafeWindow` in plaats van `window`.
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'Invoer-url:'
@@ -561,6 +586,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: Uitvoervolgorde tonen
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: Recentste bezoektijd tonen
 labelSync:
   description: Label for sync options.
   message: Synchroniseren
@@ -573,6 +601,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Bezig met goedkeuren
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: Automatisch synchroniseren
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: Niets
@@ -835,6 +866,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: De synchronisatie begint spoedig...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Bezig met synchroniseren...
@@ -1054,6 +1086,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: Alle waarden (in json-opmaak)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: Waarde (in json-opmaak of $1)
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: $1 tekenreeks
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: Violentmonkey-website

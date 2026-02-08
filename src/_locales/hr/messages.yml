@@ -100,6 +100,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: ''
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: ''
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: ''
 buttonUndo:
   description: Button to undo removement of a script.
   message: ''
@@ -233,6 +239,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: ''
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: ''
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: ''
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: ''
@@ -271,6 +285,14 @@ helpForLocalFile:
   message: ''
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
+  message: ''
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: ''
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
   message: ''
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
@@ -512,6 +534,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: ''
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: ''
 labelSync:
   description: Label for sync options.
   message: Sinkronizacija
@@ -524,6 +549,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Autoriziram
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: ''
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: Nijedan
@@ -770,6 +798,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: Sinkronizacija će uskoro početi...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Sinkronizacija u tijeku...
@@ -948,6 +977,12 @@ valueLabelValue:
   message: ''
 valueLabelValueAll:
   description: Label for input of entire script value storage.
+  message: ''
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: ''
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
   message: ''
 visitWebsite:
   description: Label for link to open Violentmonkey website.

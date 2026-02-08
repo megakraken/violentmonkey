@@ -114,6 +114,11 @@
                  @click.stop="note = note === TARDY_MATCH ? '' : TARDY_MATCH">
                 <Icon name="info"/>
               </a>
+              <a v-if="item.data.grantless"
+                 class="tardy" tabindex="0" :title="item.data.grantless"
+                 @click.stop="note = note === item.data.grantless ? '' : item.data.grantless">
+                @
+              </a>
             </div>
             <div class="upd ellipsis" :title="item.upd" :data-error="item.updError"/>
           </div>
@@ -224,7 +229,7 @@ import {
 } from '@/common';
 import handlers from '@/common/handlers';
 import { objectPick } from '@/common/object';
-import { EXTERNAL_LINK_PROPS, getActiveElement } from '@/common/ui';
+import { EXTERNAL_LINK_PROPS, getActiveElement, isTouch } from '@/common/ui';
 import Icon from '@/common/ui/icon';
 import SettingsPopup from '@/common/ui/settings-popup.vue';
 import { keyboardService, isInput, handleTabNavigation } from '@/common/keyboard';
@@ -268,7 +273,9 @@ options.hook((changes) => {
       optionsData[key] = v && isObject(v)
         ? { ...optionsData[key], ...v }
         : v;
-      if (key === kPopupWidth) document.body.style.width = v + 'px';
+      if (key === kPopupWidth) {
+        document.body.style.width = isTouch ? 'auto' : v + 'px';
+      }
     }
   }
 });

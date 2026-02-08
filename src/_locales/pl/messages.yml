@@ -102,6 +102,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: Strona wsparcia technicznego
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: ''
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: ''
 buttonUndo:
   description: Button to undo removement of a script.
   message: Cofnij
@@ -177,8 +183,8 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    Obsługiwane zmienne: <{{name}}>, <{{url}}>, <{{date}}>, <{{date:format}}> w
-    formacie zgodnym z MomentJS, np <{{date:YYYY-MM-DD}}>.
+    Obsługiwane zmienne: <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}>,
+    <{{date:format}}> w formacie zgodnym z MomentJS, np <{{date:YYYY-MM-DD}}>.
 disabledScriptsGroup:
   description: 'Used as "Disabled scripts: group"'
   message: grupuj
@@ -280,6 +286,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: według daty ostatniej aktualizacji
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: ''
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: ''
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: Wszędzie
@@ -321,6 +335,14 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: dla $1 pasujących skryptów
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: ''
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: ''
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'Wprowadź adres URL:'
@@ -573,6 +595,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: Pokaż kolejność wykonywania
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: ''
 labelSync:
   description: Label for sync options.
   message: Synchronizacja
@@ -585,6 +610,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Autoryzacja
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: ''
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: Żaden
@@ -850,6 +878,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: Synchronizacja rozpocznie się wkrótce...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Trwa synchronizacja...
@@ -1065,6 +1094,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: Wszystkie wartości (serializowane jako JSON)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: ''
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: ''
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: Odwiedź stronę internetową rozszerzenia

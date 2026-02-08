@@ -100,6 +100,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: Support-Seite
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: Einmalig auf lokale Ebene ziehen
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: Einmalig auf Remote-Ebene schieben
 buttonUndo:
   description: Button to undo removement of a script.
   message: Rückgängig
@@ -176,8 +182,9 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    Unterstützte Variablen: <{{name}}>, <{{url}}>, <{{date}}>, <{{date:format}}>
-    in MomentJS-kompatiblem Format, zum Beispiel: <{{date:YYYY-MM-DD}}>.
+    Unterstützte Variablen: <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}>,
+    <{{date:format}}> in MomentJS-kompatiblem Format, zum Beispiel:
+    <{{date:YYYY-MM-DD}}>.
 disabledScriptsGroup:
   description: 'Used as "Disabled scripts: group"'
   message: gruppieren
@@ -279,6 +286,16 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: Zeitpunkt der letzten Aktualisierung
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: Letzter Besuchszeitpunkt
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: >-
+    Der letzte Zeitpunkt, an dem eine besuchte Seite von diesem Skript erfasst
+    wurde.
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: Alles
@@ -320,6 +337,18 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: für $1 gematchte Skripte
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: '''@grant none'' deaktiviert alle anderen ''grant''-Schlüssel.'
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: >-
+    Ein gesandboxtes Skript kann diese globalen Eigenschaften nicht ändern:
+    $1.Um das Skript zu reparieren, fügen Sie entweder '@grant-none' hinzu um
+    die Sandbox zu deaktivieren,oder nutzen Sie 'unsafeWindow' anstatt von
+    'window'.
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'Input-URL:'
@@ -571,6 +600,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: Positionen in der Ausführungsreihenfolge anzeigen
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: Letzten Besuchszeitpunkt anzeigen
 labelSync:
   description: Label for sync options.
   message: Sync
@@ -583,6 +615,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Autorisiere...
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: Automatischer Sync
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: nichts
@@ -851,6 +886,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: Sync startet in Kürze...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Sync in Arbeit...
@@ -951,7 +987,7 @@ readonlyOptWarn:
   message: (nächstes Update wird sie überschreiben)
 reinstall:
   description: Button to reinstall a script
-  message: Reinstallieren
+  message: Re-installieren
 reloadTab:
   description: Label of action to reload the tab
   message: Tab neu laden
@@ -1073,6 +1109,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: Alle Werte (als JSON serialisiert)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: Wert (serialisiert als JSON oder $1)
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: $1 String
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: Webseite besuchen

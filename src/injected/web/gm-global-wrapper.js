@@ -28,7 +28,7 @@ const globalKeys = (function makeGlobalKeys() {
       /* Saving built-in global descriptors except constructors and onXXX events,
          checking length>=3 to prevent calling String.prototype index getters */
       if (key >= 'a' && key <= 'z' && (key.length < 3 || key[0] !== 'o' || key[1] !== 'n')
-      && (desc = describeProperty(window, key))) {
+      && (desc = builtinFuncs[key] || describeProperty(window, key))) {
         setPrototypeOf(desc, null); // to read desc.XXX without calling Object.prototype getters
         (desc.enumerable && isFunction(desc.value)
           ? globalFunctionDesc
@@ -104,7 +104,7 @@ builtinGlobals = null; // eslint-disable-line no-global-assign
 /**
  * @desc Wrap helpers to prevent unexpected modifications.
  */
-export function makeGlobalWrapper(local) {
+export function makeGlobalWrapper(local, grantless) {
   let globals = globalKeysSet; // will be copied only if modified
   /* Browsers may return [object Object] for Object.prototype.toString(window)
      on our `window` proxy so jQuery libs see it as a plain object and throw
@@ -117,6 +117,7 @@ export function makeGlobalWrapper(local) {
       if (name in local
       || !(_ = globalDesc[name] || updateGlobalDesc(name))
       || _.configurable) {
+        if (grantless) grantless[name] = 1;
         /* It's up to caller to protect proto */// eslint-disable-next-line no-restricted-syntax
         return defineProperty(local, name, desc);
       }
@@ -130,6 +131,7 @@ export function makeGlobalWrapper(local) {
         }
         globals.delete(name);
       }
+      if (grantless) grantless[name] = 1;
       return !!_;
     },
     get: (_, name) => {
@@ -139,11 +141,13 @@ export function makeGlobalWrapper(local) {
     },
     getOwnPropertyDescriptor: (_, name) => describeProperty(local, name)
       || proxyDescribe(local, name, wrapper, events),
-    has: (_, name) => name in globalDesc || name in local || updateGlobalDesc(name),
+    has: (_, name) => name in globalDesc || name in local || updateGlobalDesc(name)
+      || grantless && (grantless[name] = 0),
     ownKeys: () => makeOwnKeys(local, globals),
     preventExtensions() {},
     set(_, name, value) {
       if (!(name in local)) proxyDescribe(local, name, wrapper, events);
+      if (grantless) grantless[name] = 1;
       local[name] = value;
       return true;
     },

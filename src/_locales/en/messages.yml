@@ -100,6 +100,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: Support page
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: Pull once to local
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: Push once to remote
 buttonUndo:
   description: Button to undo removement of a script.
   message: Undo
@@ -269,6 +275,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: last update time
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: last visit time
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: The last time you visited any site targeted by this script.
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: All
@@ -310,6 +324,17 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: for $1 matching scripts
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: '`@grant none` disables all other `@grant` keys.'
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: |-
+    A sandboxed script cannot change these global properties: $1.
+    To fix the script either add `@grant none` to disable the sandbox,
+    or use `unsafeWindow` instead of `window`.
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'Input URL:'
@@ -554,6 +579,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: Show execution order positions
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: Show last visit time
 labelSync:
   description: Label for sync options.
   message: Sync
@@ -566,6 +594,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Authorizing
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: Sync automatically
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: None
@@ -830,6 +861,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: Sync will start soon...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Sync in progress...
@@ -1044,6 +1076,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: All values (serialized as JSON)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: Value (serialized as JSON or $1)
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: $1 string
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: Visit Website

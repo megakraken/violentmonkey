@@ -16,6 +16,7 @@ export let
   // window
   SafeCustomEvent,
   SafeDOMParser,
+  SafeDOMException,
   SafeError,
   SafeEventTarget,
   SafeKeyboardEvent,
@@ -54,6 +55,7 @@ export let
   slice,
   // various values
   builtinGlobals,
+  builtinFuncs,
   // various methods
   URLToString,
   arrayIsArray,
@@ -114,6 +116,7 @@ export const VAULT = (() => {
     // window
     SafeCustomEvent = res[i += 1] || src.CustomEvent,
     SafeDOMParser = res[i += 1] || src.DOMParser,
+    SafeDOMException = res[i += 1] || src.DOMException,
     SafeError = res[i += 1] || src.Error,
     SafeEventTarget = res[i += 1] || src.EventTarget,
     SafeKeyboardEvent = res[i += 1] || src.KeyboardEvent,
@@ -183,6 +186,13 @@ export const VAULT = (() => {
       getOwnPropertyNames(srcWindow),
       src !== srcWindow && getOwnPropertyNames(src),
     ],
+    builtinFuncs = res[i += 1] || (funcs => {
+      // extracting commonly hijacked functions that still work when bound to a real `window`
+      for (const key of ['setInterval', 'setTimeout']) {
+        funcs[key] = setPrototypeOf(describeProperty(srcWindow, key), null);
+      }
+      return funcs;
+    })(createNullObj()),
   ];
   // Well-known Symbols are unforgeable
   toStringTagSym = SafeSymbol.toStringTag;

@@ -1,4 +1,4 @@
-import bridge, { addHandlers, callbacks } from './bridge';
+import bridge, { addHandlers, callbacks, displayNames } from './bridge';
 import { commands, storages } from './store';
 import { GM_API_CTX } from './gm-api';
 import { makeGmApiWrapper } from './gm-api-wrapper';
@@ -12,6 +12,7 @@ import { safeConcat } from './util';
 // Make sure to call safe::methods() in code that may run after userscripts
 
 const toRun = createNullObj();
+const grantlessUsage = createNullObj();
 
 export default function initialize(invokeHost, console) {
   if (PAGE_MODE_HANDSHAKE) {
@@ -67,6 +68,9 @@ addHandlers({
     delete callbacks[id];
     if (fn) this::fn(data);
   },
+  GetGrantless() {
+    bridge.post('SetGrantless', grantlessUsage);
+  },
   async Plant({ data: dataKey, win: winKey }) {
     setOwnProp(window, winKey, onCodeSet, true, 'set');
     /* Cleaning up for a script that didn't compile at all due to a syntax error.
@@ -87,6 +91,7 @@ addHandlers({
     for (const script of items) {
       const { key } = script;
       toRun[key.data] = script;
+      displayNames[script.id] = script.displayName;
       storages[script.id] = setPrototypeOf(script[VALUES] || {}, null);
       if (!PAGE_MODE_HANDSHAKE) {
         const winKey = key.win;
@@ -123,7 +128,8 @@ addHandlers({
 function onCodeSet(fn) {
   const item = toRun[fn.name];
   const el = document::getCurrentScript();
-  const { gm, wrapper = global } = makeGmApiWrapper(item);
+  const { gm, wrapper = global, grantless } = makeGmApiWrapper(item);
+  if (grantless) grantlessUsage[item.id] = grantless;
   // Deleting now to prevent interception via DOMNodeRemoved on el::remove()
   delete window[item.key.win];
   if (process.env.DEBUG) {

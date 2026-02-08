@@ -1,5 +1,5 @@
 import {
-  compareVersion, dataUri2text, i18n, getScriptHome, isDataUri,
+  dataUri2text, i18n, getScriptHome, isDataUri,
   getScriptName, getScriptsTags, getScriptUpdateUrl, isRemote, sendCmd, trueJoin,
   getScriptPrettyUrl, getScriptRunAt, makePause, isValidHttpUrl, normalizeTag,
   ignoreChromeErrors,
@@ -7,33 +7,33 @@ import {
 import { FETCH_OPTS, INFERRED, TIMEOUT_24HOURS, TIMEOUT_WEEK, TL_AWAIT } from '@/common/consts';
 import { deepSize, forEachEntry, forEachKey, forEachValue } from '@/common/object';
 import pluginEvents from '../plugin/events';
-import { getDefaultCustom, getNameURI, inferScriptProps, newScript, parseMeta } from './script';
+import {
+  aliveScripts, getDefaultCustom, getNameURI, inferScriptProps, newScript, parseMeta,
+  removedScripts, scriptMap,
+} from './script';
 import { testBlacklist, testerBatch, testScript } from './tester';
 import { getImageData } from './icon';
 import { addOwnCommands, addPublicCommands, commands, resolveInit } from './init';
 import patchDB from './patch-db';
-import { getOption, initOptions, kOptions, kVersion, setOption } from './options';
+import { initOptions, kVersion, setOption } from './options';
 import storage, {
   S_CACHE, S_CODE, S_REQUIRE, S_SCRIPT, S_VALUE,
   S_CACHE_PRE, S_CODE_PRE, S_MOD_PRE, S_REQUIRE_PRE, S_SCRIPT_PRE, S_VALUE_PRE,
   getStorageKeys,
 } from './storage';
-import { dbKeys, storageCacheHas } from './storage-cache';
+import { storageCacheHas } from './storage-cache';
 import { reloadTabForScript } from './tabs';
 import { vetUrl } from './url';
 
 let maxScriptId = 0;
 let maxScriptPosition = 0;
+/** @type {Map<string,number>} */
+export let dbKeys = new Map(); // 1: exists, 0: known to be absent
 /** @type {{ [url:string]: number }} */
 export let scriptSizes = {};
-/** @type {{ [id: string]: VMScript }} */
-const scriptMap = {};
-/** @type {VMScript[]} */
-const aliveScripts = [];
-/** @type {VMScript[]} */
-const removedScripts = [];
 /** Ensuring slow icons don't prevent installation/update */
 const ICON_TIMEOUT = 1000;
+export const kTryVacuuming = 'Try vacuuming database in options.';
 /** Same order as in SIZE_TITLES and getSizes */
 export const sizesPrefixRe = RegExp(
   `^(${S_CODE_PRE}|${S_SCRIPT_PRE}|${S_VALUE_PRE}|${S_REQUIRE_PRE}|${S_CACHE_PRE}${S_MOD_PRE})`);
@@ -120,18 +120,18 @@ addOwnCommands({
   let allKeys, keys;
   if (getStorageKeys) {
     allKeys = await getStorageKeys();
-    keys = allKeys.filter(key => {
-      dbKeys.set(key, 1);
-      return key.startsWith(S_SCRIPT_PRE);
-    });
-    keys.push(kOptions);
+    // Filtering and creating Map in atomic native code operations instead of js loop
+    keys = allKeys.join('\n').replace(/^(?:(options|version|(?:scr|mod):\d+)|\S+)$/gm, '$1').trim();
+    dbKeys = new Map(JSON.parse(`[${keys.replace(/\S+/g, '["$&",1],').slice(0, -1)}]`));
+    keys = keys.split(/\n+/);
   }
   const lastVersion = (!getStorageKeys || dbKeys.has(kVersion))
     && await storage.base.getOne(kVersion);
   const version = process.env.VM_VER;
+  const versionChanged = version !== lastVersion;
   if (!lastVersion) await patchDB();
-  if (version !== lastVersion) storage.base.set({ [kVersion]: version });
-  const data = await storage.base.getMulti(keys);
+  if (versionChanged) storage.api.set({ [kVersion]: version });
+  const data = await storage.api.get(keys);
   const uriMap = {};
   const defaultCustom = getDefaultCustom();
   data::forEachEntry(([key, script]) => {
@@ -173,14 +173,7 @@ addOwnCommands({
       meta.grant = [...new Set(meta.grant || [])]; // deduplicate
     }
   });
-  initOptions(data);
-  // Switch defaultInjectInto from `page` to `auto` when upgrading VM2.12.7 or older
-  if (version !== lastVersion
-  && IS_FIREFOX
-  && getOption('defaultInjectInto') === PAGE
-  && compareVersion(lastVersion, '2.12.7') <= 0) {
-    setOption('defaultInjectInto', AUTO);
-  }
+  initOptions(data, lastVersion, versionChanged);
   if (process.env.DEBUG) {
     console.info('store:', {
       aliveScripts, removedScripts, maxScriptId, maxScriptPosition, scriptMap, scriptSizes,
@@ -190,7 +183,7 @@ addOwnCommands({
   setTimeout(async () => {
     if (allKeys?.length) {
       const set = new Set(keys); // much faster lookup
-      const data2 = await storage.base.getMulti(allKeys.filter(k => !set.has(k)));
+      const data2 = await storage.api.get(allKeys.filter(k => !set.has(k)));
       Object.assign(data, data2);
     }
     vacuum(data);
@@ -213,22 +206,6 @@ function getPropsId(script) {
 /** @return {void} */
 function updateLastModified() {
   setOption('lastModified', Date.now());
-}
-
-export function updateScriptMap(key, val) {
-  const id = +storage[S_SCRIPT].toId(key);
-  if (!id) return;
-  if (val) {
-    const oldScript = scriptMap[id];
-    const i1 = aliveScripts.indexOf(oldScript);
-    const i2 = removedScripts.indexOf(oldScript);
-    if (i1 >= 0) aliveScripts[i1] = val;
-    if (i2 >= 0) removedScripts[i2] = val;
-    scriptMap[id] = val;
-  } else {
-    delete scriptMap[id];
-  }
-  return true;
 }
 
 /** @return {Promise<boolean>} */
@@ -412,7 +389,7 @@ async function readEnvironmentData(env) {
       keys.push(storage[area].toKey(id));
     }
   }
-  const data = await storage.base.getMulti(keys);
+  const data = await storage.api.get(keys);
   const badScripts = new Set();
   for (const [area, listName] of STORAGE_ROUTES_ENTRIES) {
     for (const id of env[listName]) {
@@ -562,7 +539,7 @@ export async function removeScripts(ids) {
   }, -1);
   if (removedScripts.length !== newLen) {
     removedScripts.length = newLen; // live scripts were moved to the beginning
-    await storage.base.remove(idsToRemove);
+    await storage.api.remove(idsToRemove);
     return sendCmd('RemoveScripts', ids);
   }
 }
@@ -588,20 +565,24 @@ const getUUID = crypto.randomUUID ? crypto.randomUUID.bind(crypto) : () => {
   return '01-2-3-4-567'.replace(/\d/g, i => (rnd[i] + 0x1_0000).toString(16).slice(-4));
 };
 
-/** @return {Promise<void>} */
+/**
+ * @param {number} id
+ * @param {DeepPartial<VMScript>} data
+ */
 export async function updateScriptInfo(id, data) {
   const script = scriptMap[id];
-  if (!script) throw null;
-  script.props = { ...script.props, ...data.props };
-  script.config = { ...script.config, ...data.config };
-  script.custom = { ...script.custom, ...data.custom };
-  await storage[S_SCRIPT].setOne(id, script);
-  return sendCmd('UpdateScript', { where: { id }, update: script });
+  for (const key in data) { // shallow merge
+    if (script[key]) Object.assign(script[key], data[key]);
+  }
+  await Promise.all([
+    storage.api.set({ [S_SCRIPT_PRE + id]: script }),
+    sendCmd('UpdateScript', { where: { id }, update: script }),
+  ]);
 }
 
 /**
- * @param {string | {code:string, custom:VMScript.Custom}} src
- * @return {{ meta: VMScript.Meta, errors: string[] }}
+ * @param {string | {code:string, custom:VMScript['custom']}} src
+ * @return {{ meta: VMScript['meta'], errors: string[] }}
  */
 function parseMetaWithErrors(src) {
   const isObj = isObject(src);
@@ -609,6 +590,9 @@ function parseMetaWithErrors(src) {
   const errors = [];
   const meta = parseMeta(isObj ? src.code : src, { errors });
   if (meta) {
+    if (meta.grant.includes('none') && new Set(meta.grant).size > 1) {
+      errors.push(i18n('hintGrantNone'));
+    }
     testerBatch(errors);
     testScript('', { meta, custom });
     testerBatch();
@@ -700,10 +684,11 @@ export async function parseScript(src) {
   if (codeChanged && src.bumpDate) props.lastUpdated = now;
   // Installer has all the deps, so we'll put them in storage first
   if (src.cache) await depsPromise;
-  await storage.base.set({
+  await storage.api.set({
     [S_SCRIPT_PRE + id]: script,
     ...codeChanged && { [S_CODE_PRE + id]: code },
   });
+  if (src[INFERRED]) inferScriptProps(script);
   Object.assign(update, script, srcUpdate);
   result.where = { id };
   result[S_CODE] = src[S_CODE];
@@ -872,7 +857,7 @@ export async function vacuum(data) {
       status[key] = 2 + scriptId;
     }
   };
-  if (!data) data = await storage.base.getMulti();
+  if (!data) data = await storage.api.get();
   data::forEachKey((key) => {
     if (prefixRe.test(key)) {
       status[key] = -1;
@@ -890,6 +875,7 @@ export async function vacuum(data) {
       downloadUrls[id] = updUrls[0];
     }
     touch(S_CODE_PRE, id, id);
+    touch(S_MOD_PRE, id, id);
     touch(S_VALUE_PRE, id, id);
     meta.require.forEach(url => touch(S_REQUIRE_PRE, url, id, pathMap));
     meta.resources::forEachValue(url => touch(S_CACHE_PRE, url, id, pathMap));
@@ -917,11 +903,11 @@ export async function vacuum(data) {
     }
   });
   if (keysToRemove.length) {
-    await storage.base.remove(keysToRemove); // Removing `mod` before fetching
+    await storage.api.remove(keysToRemove); // Removing `mod` before fetching
     result.errors = (await Promise.all(toFetch)).filter(Boolean);
   }
   if (noFetch && noFetch.length) {
-    console.warn('Missing required resources. Try vacuuming database in options.', noFetch);
+    console.warn('Missing required resources. ' + kTryVacuuming, noFetch);
   }
   _vacuuming = null;
   result.fixes = toFetch.length + keysToRemove.length;

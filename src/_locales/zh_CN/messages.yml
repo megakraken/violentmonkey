@@ -100,6 +100,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: 支持页面
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: 拉取一次到本地
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: 推送一次到远端
 buttonUndo:
   description: Button to undo removement of a script.
   message: 撤销
@@ -166,8 +172,8 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    支持的变量：<{{name}}>、<{{url}}>、<{{date}}>、<{{date:format}}> 使用 MomentJS 支持的格式，如
-    <{{date:YYYY-MM-DD}}>。
+    支持的变量：<{{name}}>、<{{url}}>, <{{icon}}>、<{{date}}>、<{{date:format}}> 使用
+    MomentJS 支持的格式，如 <{{date:YYYY-MM-DD}}>。
 disabledScriptsGroup:
   description: 'Used as "Disabled scripts: group"'
   message: 分组
@@ -254,6 +260,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: 最近更新
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: 最近访问时间
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: 最近访问任何用到这个脚本的网站的时间。
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: 全部
@@ -293,6 +307,14 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: 对 $1 匹配的脚本
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: ''
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: ''
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 请输入地址：
@@ -535,6 +557,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: 显示执行序号
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: 显示最近访问时间
 labelSync:
   description: Label for sync options.
   message: 同步
@@ -547,6 +572,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: 授权中
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: 自动同步
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: 无
@@ -799,6 +827,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: 即将开始同步...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: 正在同步...
@@ -1003,6 +1032,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: 所有数据（JSON格式）
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: ''
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: ''
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: 访问网站

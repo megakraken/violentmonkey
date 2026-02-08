@@ -1,7 +1,7 @@
 {
   "name": "violentmonkey",
   "description": "Violentmonkey",
-  "version": "2.31.0",
+  "version": "2.34.0",
   "scripts": {
     "prepare": "husky install",
     "dev": "gulp dev",
@@ -30,13 +30,14 @@
     "@babel/plugin-transform-runtime": "^7.22.10",
     "@babel/preset-env": "^7.22.10",
     "@babel/preset-typescript": "^7.22.5",
+    "@iconify-json/mdi": "^1.2.3",
     "@types/chrome": "^0.0.208",
     "@types/firefox-webext-browser": "94.0.1",
     "@types/jest": "^29.5.3",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
     "@violentmonkey/types": "^0.3.1",
-    "@vue/compiler-sfc": "^3.4.38",
+    "@vue/compiler-sfc": "^3.5.25",
     "@vue/eslint-config-typescript": "^13.0.0",
     "amo-upload": "^0.5.5",
     "autoprefixer": "^10.4.15",
@@ -80,6 +81,7 @@
     "terser-webpack-plugin": "^5.3.9",
     "through2": "^4.0.2",
     "typescript": "^5.1.6",
+    "unplugin-icons": "^22.5.0",
     "vinyl": "^2.2.1",
     "vue-loader": "^17.4.2",
     "vue-tsc": "^2.0.29",
@@ -98,12 +100,12 @@
   "homepage": "https://github.com/violentmonkey/violentmonkey",
   "license": "MIT",
   "dependencies": {
-    "@violentmonkey/shortcut": "^1.2.6",
+    "@violentmonkey/shortcut": "^1.4.4",
     "@zip.js/zip.js": "2.4.4",
     "cm-show-invisibles": "^3.1.0",
-    "codemirror": "^5.65.10",
-    "tldts": "^6.0.14",
-    "vue": "^3.4.38",
+    "codemirror": "^5.65.20",
+    "tldts": "^7.0.19",
+    "vue": "^3.5.25",
     "vueleton": "^2.0.2"
   },
   "engines": {
@@ -114,6 +116,5 @@
       "./test/mock/index.js"
     ],
     "testEnvironment": "./test/mock/env.js"
-  },
-  "beta": 2
+  }
 }

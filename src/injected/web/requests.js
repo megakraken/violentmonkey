@@ -1,4 +1,5 @@
-import bridge, { addHandlers } from './bridge';
+import bridge, { addHandlers, displayNames } from './bridge';
+import { UPLOAD } from '../util';
 
 /** @type {Object<string,GMReq.Web>} */
 const idMap = createNullObj();
@@ -7,11 +8,11 @@ const kResponse = 'response';
 const kResponseXML = 'responseXML';
 const kDocument = 'document';
 const kRaw = 'raw';
-const kOnerror = 'onerror';
+const kOnerror = 'on' + ERROR;
 const kOnload = 'onload';
 const EVENTS_TO_NOTIFY = [
   'abort',
-  'error',
+  ERROR,
   'load',
   'loadend',
   'loadstart',
@@ -57,15 +58,18 @@ addHandlers({
       return;
     }
     const { type } = msg;
-    const cb = req.cb[type];
-    if (type === 'loadend') {
+    const upload = getOwnProp(msg, UPLOAD);
+    const cb = req.cb[upload ? 1 : 0][type];
+    if (!upload && type === 'loadend') {
       delete idMap[req.id];
     }
-    if (!cb) {
+    if (hasOwnProperty(msg, ERROR)) {
+      msg = msg[ERROR];
+      msg = new SafeDOMException(msg[0], msg[1]);
+      if (cb) cb(msg); else log(ERROR, displayNames[req.scriptId], msg);
       return;
     }
-    if (hasOwnProperty(msg, 'error')) {
-      cb(new SafeError((/** @type {BGError} */msg).error));
+    if (!cb) {
       return;
     }
     const { data } = msg;
@@ -191,17 +195,31 @@ export function onRequestCreate(opts, context, fileName) {
   }
   const scriptId = context.id;
   const id = safeGetUniqId('VMxhr');
-  const cb = createNullObj();
+  const cb = [createNullObj(), createNullObj()];
+  const events = [createNullObj(), createNullObj()];
   const req = safePickInto({ cb, id, scriptId }, opts, OPTS_TO_KEEP);
   // withCredentials is for GM4 compatibility and used only if `anonymous` is not set,
   // it's true by default per the standard/historical behavior of gmxhr
-  const { withCredentials = true, anonymous = !withCredentials } = opts;
+  const {
+    withCredentials = true,
+    anonymous = !withCredentials,
+    [UPLOAD]: upload,
+  } = opts;
   // setting opts.onload and onerror before EVENTS_TO_NOTIFY
   if (context.async) res = new SafePromise((resolve, reject) => {
     const { [kOnload]: onload, [kOnerror]: onerror } = opts;
     opts[kOnload] = onload ? v => { resolve(v); onload(v); } : resolve;
     opts[kOnerror] = onerror ? v => { reject(v); onerror(v); } : reject;
   });
+  for (let i = 0, obj, key, val, passes = upload && isObject(upload) ? 2 : 1; i < passes; i++) {
+    obj = i ? nullObjFrom(upload) : opts;
+    for (key of EVENTS_TO_NOTIFY) {
+      if ((val = obj[`on${key}`]) && isFunction(val)) {
+        cb[i][key] = val;
+        events[i][key] = true;
+      }
+    }
+  }
   idMap[id] = req;
   data = data == null && []
     // `binary` is for TM/GM-compatibility + non-objects = must use a string `data`
@@ -221,7 +239,7 @@ export function onRequestCreate(opts, context, fileName) {
     [kFileName]: fileName,
     [kResponseType]: type,
     [kXhrType]: req[kXhrType] = XHR_TYPES[type] ? type : '',
-    events: EVENTS_TO_NOTIFY::filter(key => isFunction(cb[key] = opts[`on${key}`])),
+    events,
   }, opts, OPTS_TO_PASS));
   if (!res) res = {};
   else if (IS_FIREFOX) setPrototypeOf(res, SafePromiseConstructor);

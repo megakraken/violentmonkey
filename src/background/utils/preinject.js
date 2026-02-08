@@ -1,5 +1,5 @@
 import {
-  getActiveTab, getScriptName, getScriptPrettyUrl, getUniqId, sendTabCmd
+  getActiveTab, getScriptName, getScriptPrettyUrl, getUniqId, sendTabCmd,
 } from '@/common';
 import {
   __CODE, TL_AWAIT, UNWRAP, XHR_COOKIE_RE,
@@ -9,7 +9,7 @@ import initCache from '@/common/cache';
 import {
   deepCopy, forEachEntry, forEachValue, mapEntry, objectPick, objectSet,
 } from '@/common/object';
-import { CACHE_KEYS, getScriptsByURL, PROMISE, REQ_KEYS, VALUE_IDS } from './db';
+import { CACHE_KEYS, getScriptsByURL, kTryVacuuming, PROMISE, REQ_KEYS, VALUE_IDS } from './db';
 import { setBadge } from './icon';
 import { addOwnCommands, addPublicCommands } from './init';
 import { clearNotifications } from './notifications';
@@ -17,6 +17,7 @@ import { hookOptionsInit } from './options';
 import { popupTabs } from './popup-tracker';
 import { clearRequestsByTabId, reifyRequests } from './requests';
 import { kSetCookie } from './requests-core';
+import { updateVisitedTime } from './script';
 import {
   S_CACHE, S_CACHE_PRE, S_CODE, S_CODE_PRE, S_REQUIRE, S_REQUIRE_PRE, S_SCRIPT_PRE, S_VALUE,
   S_VALUE_PRE,
@@ -67,7 +68,7 @@ const cache = initCache({
   },
 });
 // KEY_XXX for hooked options
-const GRANT_NONE_VARS = '{GM,GM_info,unsafeWindow,cloneInto,createObjectIn,exportFunction}';
+const GRANT_NONE_VARS = '{GM,GM_info}';
 const META_KEYS_TO_ENSURE = [
   'description',
   'name',
@@ -173,6 +174,9 @@ addPublicCommands({
     if (scripts) {
       triageRealms(scripts, bag[FORCE_CONTENT] || forceContent, tabId, frameId, bag);
       addValueOpener(scripts, tabId, frameDoc);
+      if (isTop < 2/* skip prerendered pages*/ && scripts.length) {
+        updateVisitedTime(scripts);
+      }
     }
     if (popupTabs[tabId]) {
       sendPopupShown(tabId, frameDoc);
@@ -201,6 +205,9 @@ addPublicCommands({
     const scripts = prepareScripts(env);
     triageRealms(scripts, forceContent, tabId, frameId);
     addValueOpener(scripts, tabId, getFrameDocId(isTop, src[kDocumentId], frameId));
+    if (isTop < 2/* skip prerendered pages*/ && scripts.length) {
+      updateVisitedTime(scripts);
+    }
     return {
       [SCRIPTS]: scripts,
       [S_CACHE]: envCache,
@@ -215,7 +222,10 @@ addPublicCommands({
     const hasIds = +ids?.[0];
     setBadge(ids, reset, src);
     if (isTop === 3) {
-      if (hasIds) reifyValueOpener(ids, docId);
+      if (hasIds) {
+        reifyValueOpener(ids, docId);
+        updateVisitedTime(ids, true);
+      }
       reifyRequests(tabId, docId);
       clearNotifications(tabId);
     }
@@ -474,8 +484,7 @@ function prepareScript(script, env) {
   const wrapTryCatch = wrap && IS_FIREFOX; // FF doesn't show errors in content script's console
   const { grant, [TL_AWAIT]: topLevelAwait } = meta;
   const startIIFE = topLevelAwait ? 'await(async' : '(';
-  const numGrants = grant.length;
-  const grantNone = !numGrants || numGrants === 1 && grant[0] === 'none';
+  const grantNone = grant.includes('none');
   const shouldUpdate = !!script.config.shouldUpdate;
   // Storing slices separately to reuse JS-internalized strings for code in our storage cache
   const injectedCode = [];
@@ -524,7 +533,9 @@ function prepareScript(script, env) {
   }
   tmp = false;
   for (const url of meta[S_REQUIRE]) {
-    const req = require[pathMap[url] || url];
+    const req = require[pathMap[url] || url] || `/* ${VIOLENTMONKEY} is missing @require ${
+      url.replace(/\*\//g, '%2A/')
+    }\n${kTryVacuuming} */`;
     if (/\S/.test(req)) {
       injectedCode.push(...[
         tmp && isUnsafeConcat(req) && ';',
@@ -574,7 +585,7 @@ function triageRealms(scripts, forceContent, tabId, frameId, bag) {
   let code;
   let wantsPage;
   const toContent = [];
-  for (const scr of scripts) {
+  for (const /**@type{VMInjection.Script}*/ scr of scripts) {
     const metaStr = scr[META_STR];
     if (isContentRealm(scr[INJECT_INTO], forceContent)) {
       if (!metaStr[0]) {

@@ -102,6 +102,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: Stránka podpory
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: Stiahnuť zmeny z repozitára
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: Odoslať zmeny do repozitára
 buttonUndo:
   description: Button to undo removement of a script.
   message: Späť
@@ -177,8 +183,9 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    Podporované premenné: <{{name}}>, <{{url}}>, <{{date}}>, <{{date:format}}>
-    formát kompatibilný s MomentJS, napríklad <{{date:YYYY-MM-DD}}>.
+    Podporované premenné: <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}>,
+    <{{date:format}}> formát kompatibilný s MomentJS, napríklad
+    <{{date:YYYY-MM-DD}}>.
 disabledScriptsGroup:
   description: 'Used as "Disabled scripts: group"'
   message: skupina
@@ -278,6 +285,16 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: poslednej aktualizácie
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: čas poslednej návštevy
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: >-
+    Čas, kedy ste naposledy navštívili akúkoľvek stránku, ktorú ovplyvňuje tento
+    skript.
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: Všetko
@@ -319,6 +336,17 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: pre zodpovedajúce skripty ($1)
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: '`@grant none` zakáže všetky ostatné kľúče `@grant`.'
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: |-
+    Skript v sandboxe nemôže meniť tieto globálne vlastnosti: $1.
+    Ak chcete opraviť skript, buď pridajte `@grant none` na vypnutie
+    sadboxu, alebo použite `unsafeWindow` namiesto `window`.
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'Vložte adresu:'
@@ -391,10 +419,10 @@ labelBadgeNone:
   message: žiadne
 labelBadgeTotal:
   description: Option to display total number of running scripts on badge.
-  message: spustených skriptov
+  message: spustené skripty
 labelBadgeUnique:
   description: Option to display number of unique running scripts on badge.
-  message: spustených unikátnych skriptov
+  message: spustené unikátne skripty
 labelBlacklist:
   description: Label for global blacklist settings in security section.
   message: Čierna listina
@@ -565,6 +593,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: Zobraziť poradie vykonania príkazu
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: Zobraziť čas poslednej návštevy
 labelSync:
   description: Label for sync options.
   message: Synchronizácia
@@ -577,6 +608,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Autorizácia
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: Automaticky synchronizovať
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: Zakázané
@@ -840,6 +874,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: Synchronizácia sa spustí o chvíľu...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Prebieha synchronizácia...
@@ -1059,6 +1094,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: Všetky hodnoty (serializované ako JSON)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: Hodnota (serializovaná ako JSON alebo $1)
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: reťazec $1
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: Prejsť na stránku

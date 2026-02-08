@@ -38,12 +38,9 @@ const defsObj = {
   ...pickEnvs([
     'DEBUG',
     'VM_VER',
-    'SYNC_GOOGLE_CLIENT_ID',
-    'SYNC_GOOGLE_CLIENT_SECRET',
     'SYNC_GOOGLE_DESKTOP_ID',
     'SYNC_GOOGLE_DESKTOP_SECRET',
     'SYNC_ONEDRIVE_CLIENT_ID',
-    'SYNC_ONEDRIVE_CLIENT_SECRET',
     'SYNC_DROPBOX_CLIENT_ID',
   ]),
   'process.env.INIT_FUNC_NAME': JSON.stringify(INIT_FUNC_NAME),
@@ -82,6 +79,10 @@ module.exports = [
     config.plugins.push(new ListBackgroundScriptsPlugin({
       minify: false, // keeping readable
     }));
+    (config.ignoreWarnings ??= []).push({
+      // suppressing a false warning (the HTML spec allows it) as we don't need SSR
+      message: /<tr> cannot be child of <table>/,
+    });
   }),
 
   buildConfig('injected', './src/injected', (config) => {

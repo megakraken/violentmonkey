@@ -96,7 +96,7 @@ import {
   debounce, formatByteLength, getScriptName, getScriptUpdateUrl, i18n, isEmpty,
   nullBool2string, sendCmdDirectly, trueJoin,
 } from '@/common';
-import { ERR_BAD_PATTERN, VM_DOCS_MATCHING, VM_HOME } from '@/common/consts';
+import { ERR_BAD_PATTERN, INFERRED, VM_DOCS_MATCHING, VM_HOME } from '@/common/consts';
 import { deepCopy, deepEqual, objectPick } from '@/common/object';
 import { externalEditorInfoUrl, focusMe, getActiveElement, showMessage } from '@/common/ui';
 import { keyboardService } from '@/common/keyboard';
@@ -140,7 +140,7 @@ const toEnum = val => val || null; // `null` removes the prop from script object
 const K_PREV_PANEL = 'Alt-PageUp';
 const K_NEXT_PANEL = 'Alt-PageDown';
 const compareString = (a, b) => (a < b ? -1 : a > b);
-/** @param {VMScript.Config} config */
+/** @param {VMScript['config']} config */
 const collectShouldUpdate = ({ shouldUpdate, _editable }) => (
   +shouldUpdate && (shouldUpdate + _editable)
 );
@@ -274,8 +274,8 @@ onMounted(() => {
   $codeComp = $code.value;
   CM = $codeComp.cm;
   toggleUnloadSentry = getUnloadSentry(null, () => CM.focus());
-  if (options.get('editorWindow') && global.history.length === 1) {
-    browser.windows?.getCurrent({ populate: true }).then(setupSavePosition);
+  if (browserWindows && options.get('editorWindow') && global.history.length === 1) {
+    browserWindows.getCurrent({ populate: true }).then(setupSavePosition);
   }
   // hotkeys
   const navLabels = Object.values(navItems.value);
@@ -337,6 +337,7 @@ async function save() {
       isNew: !id,
       message: '',
       bumpDate: true,
+      [INFERRED]: true,
     });
     const newId = res?.where?.id;
     CM.markClean();
@@ -415,7 +416,7 @@ function onScript(scr) {
 /** @param {chrome.windows.Window} [wnd] */
 async function savePosition(wnd) {
   if (options.get('editorWindow')) {
-    if (!wnd) wnd = await browserWindows?.getCurrent() || {};
+    wnd ??= await browserWindows.getCurrent();
     /* chrome.windows API can't set both the state and coords, so we have to choose:
      * either we save the min/max state and lose the coords on restore,
      * or we lose the min/max state and save the normal coords.
@@ -428,7 +429,6 @@ async function savePosition(wnd) {
 //    }
   }
 }
-
 /** @param {chrome.windows.Window} _ */
 function setupSavePosition({ id: curWndId, tabs }) {
   if (tabs.length === 1) {

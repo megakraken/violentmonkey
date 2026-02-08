@@ -102,6 +102,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: صفحة الدعم
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: سحب مرة واحدة إلى المحلي
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: اضغط مرة واحدة للتحكم عن بعد
 buttonUndo:
   description: Button to undo removement of a script.
   message: تراجع
@@ -177,8 +183,9 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    المتغيرات المدعومة: <{{name}}>, <{{url}}>, <{{date}}>, <{{date:format}}>
-    بصيغة متوافقة مع MomentJS، على سبيل المثال <{{date:YYYY-MM-DD}}>.
+    المتغيرات المدعومة: <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}>,
+    <{{date:format}}> بصيغة متوافقة مع MomentJS، على سبيل المثال
+    <{{date:YYYY-MM-DD}}>.
 disabledScriptsGroup:
   description: 'Used as "Disabled scripts: group"'
   message: مجموعة
@@ -274,6 +281,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: وقت آخر تحديث
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: آخر وقت للزيارة
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: آخر مرة قمت فيها بزيارة أي موقع مستهدف بواسطة هذا السكريبت.
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: ''
@@ -315,6 +330,17 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: لـ $1 سكربتًا مطابقًا
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: ''
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: |-
+    لا يمكن للنص البرمجي المعزول تغيير هذه الخصائص العامة: $1.
+    لإصلاح النص البرمجي إما أضف `@grant none` لتعطيل العزل،
+    أو استخدم `unsafeWindow` بدلاً من `window`.
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'أدخل عنوان URL:'
@@ -558,6 +584,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: عرض مواضع ترتيب التنفيذ
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: عرض وقت آخر زيارة
 labelSync:
   description: Label for sync options.
   message: المزامنة
@@ -570,6 +599,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: جارٍ التفويض
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: المزامنة تلقائياً
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: بدون
@@ -837,6 +869,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: ستبدأ المزامنة قريبًا...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: المزامنة قيد التنفيذ...
@@ -1045,6 +1078,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: جميع القيم (مُسلسلة بصيغة JSON)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: القيمة (مسلسلة كـ JSON أو $1)
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: سلسلة نصية $1
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: ''

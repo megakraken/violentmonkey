@@ -102,6 +102,12 @@ buttonShowEditorState:
 buttonSupport:
   description: Button to open support page.
   message: Destek sayfası
+buttonSyncPullOnce:
+  description: Button to sync scripts from remote to local for once
+  message: Yerele bir kez "pull"
+buttonSyncPushOnce:
+  description: Button to sync scripts from local to remote for once
+  message: Uzağa bir kez "push"
 buttonUndo:
   description: Button to undo removement of a script.
   message: Geri al
@@ -179,8 +185,8 @@ descEditorOptionsVM:
 descScriptTemplate:
   description: Description of script template section.
   message: >-
-    Desteklenen değerler: <{{name}}>, <{{url}}>, <{{date}}>, MomentJS uyumlu
-    biçimde <{{date:format}}> (örn. <{{date:YYYY-AA-GG}}>).
+    Desteklenen değerler: <{{name}}>, <{{url}}>, <{{icon}}>, <{{date}}>,
+    MomentJS uyumlu biçimde <{{date:format}}> (örn. <{{date:YYYY-AA-GG}}>).
 disabledScriptsGroup:
   description: 'Used as "Disabled scripts: group"'
   message: grupla
@@ -282,6 +288,14 @@ filterExecutionOrder:
 filterLastUpdateOrder:
   description: Label for option to sort scripts by last update time.
   message: son güncelleme zamanına göre
+filterLastVisitOrder:
+  description: >-
+    Label for option to sort scripts by the last time the user visited any site
+    targeted by this script.
+  message: son ziyaret
+filterLastVisitOrderTooltip:
+  description: Tooltip for option to sort scripts.
+  message: Bu betiğin hedeflediği herhangi bir siteyi ziyaret ettiğiniz son tarih.
 filterScopeAll:
   description: Option in dashboard's search scope filter.
   message: Tümü
@@ -323,6 +337,14 @@ helpForLocalFile:
 hintForBatchAction:
   description: Hint shown next to the buttons for batch actions.
   message: eşleşen $1 betik
+hintGrantNone:
+  description: Don't translate back-quoted terms.
+  message: '`@grant none` tüm diğer `@grant` anahtarlarını devre dışı bırakır.'
+hintGrantless:
+  description: >-
+    1) This is a tooltip so preserve the line breaks to ensure it's not too
+    wide. 2) Don't translate back-quoted terms like `window` or `@grant none`.
+  message: ''
 hintInputURL:
   description: Hint for a prompt box to input URL of a user script.
   message: 'URL''yi girin:'
@@ -570,6 +592,9 @@ labelSettings:
 labelShowOrder:
   description: Label for option in dashboard -> script list
   message: Çalıştırma sıralarını göster
+labelShowVisited:
+  description: Label for option in dashboard -> script list
+  message: Son ziyaret tarihini göster
 labelSync:
   description: Label for sync options.
   message: Eşitleme
@@ -582,6 +607,9 @@ labelSyncAuthorize:
 labelSyncAuthorizing:
   description: Label for button when authorization is in progress.
   message: Yetkilendiriliyor
+labelSyncAutomatically:
+  description: Label for option to sync automatically.
+  message: Otomatik olarak eşitle
 labelSyncDisabled:
   description: Label for option to disable sync service.
   message: Hiçbiri
@@ -847,6 +875,7 @@ msgSyncNoAuthYet:
 msgSyncReady:
   description: Message shown when sync will start soon.
   message: Eşitleme az sonra başlayacak...
+  touched: false
 msgSyncing:
   description: Message shown when sync is in progress.
   message: Eşitleme devam ediyor...
@@ -1062,6 +1091,12 @@ valueLabelValue:
 valueLabelValueAll:
   description: Label for input of entire script value storage.
   message: Tüm değerler (JSON biçiminde serileştirilmiş)
+valueLabelValueOr:
+  description: $1 is "[x] string"
+  message: Değer (JSON serisi veya $1)
+valueLabelValueString:
+  description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
+  message: ''
 visitWebsite:
   description: Label for link to open Violentmonkey website.
   message: Siteyi ziyaret et
