@@ -5,12 +5,14 @@ const ProtectWebpackBootstrapPlugin = require('./webpack-protect-bootstrap-plugi
 const { getVersion } = require('./version-helper');
 const { configLoader } = require('./config-helper');
 const { getBaseConfig, getPageConfig, isProd } = require('./webpack-base');
+const { exec } = require('./common');
 
 // Avoiding collisions with globals of a content-mode userscript
 const INIT_FUNC_NAME = '**VMInitInjection**';
 const VAULT_ID = 'VAULT_ID';
 const PAGE_MODE_HANDSHAKE = 'PAGE_MODE_HANDSHAKE';
 const VM_VER = getVersion();
+const GIT_DESCRIBE = exec('git rev-parse --short HEAD');
 
 global.localStorage = {}; // workaround for node 25 and HtmlWebpackPlugin's `...global`
 
@@ -47,6 +49,7 @@ const defsObj = {
     'SYNC_ONEDRIVE_CLIENT_ID',
     'SYNC_DROPBOX_CLIENT_ID',
   ]),
+  'process.env.GIT_DESCRIBE': JSON.stringify(GIT_DESCRIBE),
   'process.env.INIT_FUNC_NAME': JSON.stringify(INIT_FUNC_NAME),
   'process.env.CODEMIRROR_THEMES': JSON.stringify(getCodeMirrorThemes()),
   'process.env.DEV': JSON.stringify(!isProd),
