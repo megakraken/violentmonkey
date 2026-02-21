@@ -218,14 +218,14 @@ const sortModes = [
     (a, b) => a.$cache.sizeNum - b.$cache.sizeNum],
 ].reduce((res, [key, text, title, compare]) => (
   (res[key] = {text, title, compare}),
-  (res[key + '-'] = /**@namespace SortMode*/{
-    text: text + ' ⯆',
-    title: title,
-    compare: compare ? (a, b) => compare(b, a) :
-      /** @param {VMScript} a
-       * @param {VMScript} b */
-      (a, b) => b.props.position - a.props.position,
-  }),
+//  (res[key + '-'] = /**@namespace SortMode*/{
+//    text: text + ' ⯆',
+//    title: title,
+//    compare: compare ? (a, b) => compare(b, a) :
+//      /** @param {VMScript} a
+//       * @param {VMScript} b */
+//      (a, b) => b.props.position - a.props.position,
+//  }),
   res
 ), {});
 const filters = reactive({
