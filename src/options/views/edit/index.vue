@@ -421,9 +421,11 @@ async function savePosition(wnd) {
      * or we lose the min/max state and save the normal coords.
      * Let's assume those who use a window prefer it at a certain position most of the time,
      * and occasionally minimize/maximize it, but wouldn't want to save the state. */
-    if (wnd.type !== 'normal' || wnd.state === 'normal') {
+
+    /* This is sometimes 'maximized' on Firefox 115 ESR for some reason. */
+//    if (wnd.state === 'normal') {
       options.set('editorWindowPos', objectPick(wnd, ['left', 'top', 'width', 'height']));
-    }
+//    }
   }
 }
 /** @param {chrome.windows.Window} _ */
@@ -437,7 +439,7 @@ function setupSavePosition({ id: curWndId, tabs }) {
       });
     } else {
       // triggered on resizing only
-      addEventListener('resize', debounce(savePosition.bind(null, null), 100));
+      addEventListener('resize', debounce(() => savePosition(), 100));
       shouldSavePositionOnSave = true;
     }
   }
