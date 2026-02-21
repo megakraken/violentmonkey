@@ -102,6 +102,7 @@
   "dependencies": {
     "@violentmonkey/shortcut": "^1.4.4",
     "@zip.js/zip.js": "2.4.4",
+    "cm-show-invisibles": "^3.1.0",
     "codemirror": "^5.65.20",
     "tldts": "^7.0.19",
     "vue": "^3.5.25",

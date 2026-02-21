@@ -16,6 +16,7 @@ const defaultsEditorCommon = {
   indentUnit: 2,
   tabSize: 2,
   undoDepth: 500,
+  showInvisibles: false
 };
 export const defaultsEditor = {
   [kKillTrailingSpaceOnSave]: true,

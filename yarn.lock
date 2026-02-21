@@ -3566,6 +3566,11 @@ cloneable-readable@^1.0.0:
     process-nextick-args "^2.0.0"
     readable-stream "^2.3.5"
 
+cm-show-invisibles@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/cm-show-invisibles/-/cm-show-invisibles-3.1.0.tgz#85bc05cc2ceaa82a387795510452e65b303a0b50"
+  integrity sha512-dfWd4QmuSMoSgONkCv4+REfPrxp3R3OE8jnxR3u2IjkLPolHArGOhMetBLo6gTeiL8tA4ff5v+VBZ1u1AZx+4A==
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
