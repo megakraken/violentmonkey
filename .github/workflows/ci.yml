@@ -54,6 +54,7 @@ jobs:
         with:
           tag_name: ${{ env.SHORT_SHA }}
           name: ${{ env.SHORT_SHA }}
+          target_commitish: my_tweaks
           draft: false
           prerelease: false
           files: |
