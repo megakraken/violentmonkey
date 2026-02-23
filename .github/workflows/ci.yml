@@ -3,20 +3,18 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: [master]
-    tags-ignore:
-      - 'v*' # version-tagged commits are releases which have their own workflow
+    branches: [my_tweaks]
     paths-ignore:
-      - '.github/**' # this ci.yml is also excluded so you need to re-run it explicitly if necessary
-      - src/types.d.ts
-      - LICENSE
+      - '.github/**'
       - README.md
   pull_request:
-    branches: [master]
+    branches: [my_tweaks]
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      VM_PREFIX: vm-megakraken-
 
     steps:
       - name: Checkout code
@@ -25,7 +23,10 @@ jobs:
           fetch-depth: 100 # for revision index in version and the `has-changed-path` action
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '24'
+
+      - name: Set short SHA
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build
         env:
@@ -33,26 +34,31 @@ jobs:
           SYNC_GOOGLE_DESKTOP_ID: ${{ secrets.SYNC_GOOGLE_DESKTOP_ID }}
           SYNC_GOOGLE_DESKTOP_SECRET: ${{ secrets.SYNC_GOOGLE_DESKTOP_SECRET }}
           SYNC_ONEDRIVE_CLIENT_ID: ${{ secrets.SYNC_ONEDRIVE_CLIENT_ID }}
-        run: yarn && yarn build
+        run: yarn && yarn build && yarn build:crx3 && yarn build:xpi
 
-      - name: Get version and SHA
-        run: node scripts/action-helper.js ci
-      - name: Upload Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
-        continue-on-error: true
         with:
-          name: 'Violentmonkey-test-webext-${{ env.GIT_DESCRIBE }}'
+          name: '${{ env.VM_PREFIX }}${{ env.SHORT_SHA }}'
           path: 'dist/*'
           if-no-files-found: error
 
-      - name: Upload to Transifex - check src
-        if: github.event_name == 'push' || github.event.pull_request.merged == true
-        uses: marceloprado/has-changed-path@v1.0.1
-        id: changed-path-src
+      - name: Prepare files for Github Release
+        run: |
+          zip -r "${VM_PREFIX}${SHORT_SHA}.zip" dist/*
+          mv extension.crx "${VM_PREFIX}${SHORT_SHA}.crx"
+          mv extension.xpi "${VM_PREFIX}${SHORT_SHA}.xpi"
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          paths: src
-      - name: Upload to Transifex
-        if: steps.changed-path-src.outputs.changed == 'true'
-        run: node scripts/transifex.mjs update
+          tag_name: ${{ env.SHORT_SHA }}
+          name: ${{ env.SHORT_SHA }}
+          draft: false
+          prerelease: false
+          files: |
+            ${{ env.VM_PREFIX }}${{ env.SHORT_SHA }}.zip
+            ${{ env.VM_PREFIX }}${{ env.SHORT_SHA }}.crx
+            ${{ env.VM_PREFIX }}${{ env.SHORT_SHA }}.xpi
         env:
-          TRANSIFEX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
